@@ -24,6 +24,7 @@ All source files live in this repository. No template service or external asset 
 | --- | --- |
 | `index.html` | Slide text, explanations, teacher notes, questions, and slide order |
 | `styles.css` | Colors, fonts, spacing, responsive layout, and print styles |
+| `answers.js` | Table answer reveal/reset controls (independent of the simulator) |
 | `lesson.js` | Slide navigation, simulator controls, and reference-bit feedback |
 | `paging.js` | FIFO, LRU, Optimal, and Clock simulation logic |
 | `images/*.svg` | Labeled diagrams; editable as SVG text or with a vector editor |
@@ -50,3 +51,5 @@ The slides contain explanations rather than questions to ask the class. Teacher 
 The lesson follows the supplied “Paging and Page Replacement Algorithms” guide, including Second Chance/Clock and the FIFO sequence `1, 2, 3, 1, 4, 2, 5` (5 faults, 2 hits, 71.43% fault rate). Frame labels use 0-based numbering consistently throughout.
 
 Slides 6 and 12 begin with table answers hidden. Use **Reveal next row** for one request at a time, **Reveal all answers** to check the full table, or **Hide answers** to reset. Frame contents and explanations are hidden too, and totals appear only after all rows are revealed. Slide 14 defines fault latency, dirty-page writeback, and policy overhead.
+
+The HTML uses versioned CSS and JavaScript URLs so updated pages fetch the matching files. When changing an asset, update its `?v=` value in `index.html` (for example, to the new commit or a content hash). Reveal controls initialize independently of the simulator.
