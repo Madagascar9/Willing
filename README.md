@@ -1,4 +1,4 @@
-# Paging Algorithms — interactive lesson
+# Paging Algorithm — interactive lesson
 
 A self-contained HTML lesson covering paging, FIFO, LRU, Optimal, and Clock replacement, page-fault rates, and Belady’s anomaly. Includes keyboard-controlled slides, a step-by-step simulator, comparison totals, and a worked fault-rate calculation. No build tools, dependencies, credentials, or external assets are required.
 
