@@ -2,9 +2,10 @@
 (function (root) {
   function simulate(pages, capacity, algorithm) {
     if (!Number.isInteger(capacity) || capacity < 1) throw new Error('Frame count must be a positive integer.');
-    if (!['FIFO', 'LRU', 'OPT'].includes(algorithm)) throw new Error('Unknown algorithm.');
+    if (!['FIFO', 'LRU', 'OPT', 'CLOCK'].includes(algorithm)) throw new Error('Unknown algorithm.');
     const frames = [], loaded = new Map(), used = new Map();
-    let faults = 0;
+    let faults = 0, hand = 0;
+    const bits = [];
     return pages.map((page, index) => {
       const hit = frames.includes(page);
       let evicted = null;
@@ -21,13 +22,22 @@
               if (next(frames[j]) > next(frames[slot])) slot = j;
             }
           }
+          if (algorithm === 'CLOCK') {
+            while (bits[hand] === 1) {
+              bits[hand] = 0;
+              hand = (hand + 1) % capacity;
+            }
+            slot = hand;
+          }
           evicted = frames[slot];
         }
         frames[slot] = page;
         loaded.set(page, index);
+        if (algorithm === 'CLOCK') hand = (slot + 1) % capacity;
       }
       used.set(page, index);
-      return {page, hit, evicted, frames: [...frames], faults};
+      if (algorithm === 'CLOCK') bits[frames.indexOf(page)] = 1;
+      return {page, hit, evicted, frames: [...frames], faults, ...(algorithm === 'CLOCK' ? {bits: [...bits], hand} : {})};
     });
   }
   if (typeof module !== 'undefined') module.exports = {simulate};

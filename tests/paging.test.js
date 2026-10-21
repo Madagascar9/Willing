@@ -25,3 +25,22 @@ test('hits do not evict pages and empty frames fill without eviction', () => {
   assert.ok(rows.every(r => r.evicted === null));
   assert.deepEqual(rows.at(-1).frames, [0, 1]);
 });
+
+test('guide FIFO calculation has five faults and two hits', () => {
+  const rows = simulate([1, 2, 3, 1, 4, 2, 5], 3, 'FIFO');
+  assert.equal(rows.at(-1).faults, 5);
+  assert.equal(rows.filter(r => r.hit).length, 2);
+  assert.equal(rows.at(-1).evicted, 2);
+});
+test('Clock clears reference bits and advances its hand', () => {
+  const rows = simulate([1, 2, 3, 4, 2, 5], 3, 'CLOCK');
+  assert.deepEqual(rows[2].bits, [1, 1, 1]);
+  assert.equal(rows[3].evicted, 1);
+  assert.deepEqual(rows[3].bits, [1, 0, 0]);
+  assert.equal(rows[3].hand, 1);
+  assert.equal(rows[4].hit, true);
+  assert.deepEqual(rows[4].bits, [1, 1, 0]);
+  assert.equal(rows[5].evicted, 3);
+  assert.deepEqual(rows[5].bits, [1, 0, 1]);
+  assert.equal(rows[5].hand, 0);
+});

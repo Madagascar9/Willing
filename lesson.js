@@ -27,6 +27,7 @@ function render() {
   $('trace').innerHTML = visible.map((row,i)=>`<tr><td>${i+1}</td><td>${row.page}</td>${Array.from({length:capacity},(_,j)=>`<td>${row.frames[j] ?? '—'}</td>`).join('')}<td class="${row.hit?'hit':'fault'}">${row.hit?'Hit':'Fault'}</td><td>${row.evicted ?? '—'}</td></tr>`).join('');
   const last = visible.at(-1);
   $('decision').textContent = !last ? 'Ready. Reveal the first reference.' : last.hit ? `Page ${last.page} is already resident: hit.` : `Page ${last.page} is not resident: fault. ${last.evicted === null ? 'Loaded into an empty frame.' : `Evicted page ${last.evicted}.`}`;
+  if (last?.bits) $('decision').textContent += ` Reference bits by frame: ${last.bits.join(', ')}. Next clock-hand position: Frame ${last.hand}.`;
   $('step').disabled = $('all').disabled = shown === trace.length;
 }
 function load(event) {
@@ -43,7 +44,7 @@ function load(event) {
   capacity = frames;
   trace = simulate(pages, capacity, $('algorithm').value);
   shown = 0;
-  $('comparison').textContent = 'Full-string fault totals: ' + ['FIFO','LRU','OPT'].map(a=>`${a}: ${simulate(pages,capacity,a).at(-1).faults}`).join(' · ');
+  $('comparison').textContent = 'Full-string fault totals: ' + ['FIFO','LRU','OPT','CLOCK'].map(a=>`${a}: ${simulate(pages,capacity,a).at(-1).faults}`).join(' · ');
   render();
 }
 $('sim-form').onsubmit = load;
@@ -51,7 +52,4 @@ $('step').onclick = () => { shown = Math.min(shown + 1, trace.length); render();
 $('all').onclick = () => { shown = trace.length; render(); };
 $('reset').onclick = () => { shown = 0; render(); };
 $('anomaly').onclick = () => { $('pages').value = '1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5'; $('frames').value = 3; $('algorithm').value = 'FIFO'; load(); go(slides.indexOf($('lab'))); };
-document.querySelectorAll('[data-answer]').forEach(button => button.onclick = () => {
-  $('feedback').textContent = button.dataset.answer === 'OPT' ? 'Correct. Optimal uses future references to choose the page needed furthest in the future.' : `${button.dataset.answer} uses past information. Try again: which policy looks ahead?`;
-});
 load(); go(0);
